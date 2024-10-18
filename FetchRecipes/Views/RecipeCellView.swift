@@ -13,8 +13,6 @@ struct RecipeCellView: View {
     @Environment(\.openURL) private var openURL
     
     var viewModel: Recipe.ViewModel
-
-//    @State var image: Image? = nil
     
     @Binding var cellFrame: CGRect
     
