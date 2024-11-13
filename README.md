@@ -1,39 +1,23 @@
-## FetchRecipes
-# The Application is deigned upon MVVM pattern using Combine and SwiftUI
+## FetchRecipes is a showcase App of MVVM using SwiftUI/Combine
+# The application architecture is based on CLEAN principles and architectural patterns such as MVVM. The UI and buisness logic implemented with SwiftUI, Combine and Swift
 
-For reasons of modularity, scalability, testability and reusability, the application uses Swift modules living in the Packages folder.
-I didn't use any of third party modules because firstly its really not nesessary to this day to use freely available APIs since all required functionnalities are availabe from native APIs. Then if you use any of them there is a danger of importing other peopls bugs finally for the reason of maintability there is a danger that some of those APIs wont be supported in the future versions of iOS.   
+## The UI layer is isolated from business logic in the View folder at the Application level. UI related buisness logic is living in the ViewModels folder at the Application level. 
 
-There are four packages that build with SPM.
+## The API consumption, Response Handling and Model Shaping are isolated into corresponding Networking, State Managment, Models, and Tools Packages at the submodule/Package level.
 
-# The Networking package is responsible for execution of REST API requests and handling the responses back to the App.
+## To avoid potential issues of maintability/imported bugs/malware backdoors, etc. the application does not depend on any third party frameworks. The frameworks living in the Package layer are easier to maintain/upgrade without affecting the core logic. By organizing the code into layers, the Application can adapt to changes more easily, and maintenance becomes less cumbersome.
 
-# The Models package is responsible for abstraction of model objects
-and implementation of serialization/de-serialisation from REST API responses.
-The main object of Models module is Recipe. ViewModel struct which hold all information about a particular recipe. The intent of the Recipe. ViewModel is obviously to convey the recipes' data to the SwiftUI views.
+# The Modules layer: there are four packages that build with SPM.
 
-## The Recipe.ViewModel object created/wrapped with ViewModelWrapper to convert a recipe struct into an Observable Object.
-## The helper object in Models module is the Recipe Shape struct which is used to shape JSON described data into Recipe. ViewModel struct.
+## The Networking package is responsible for execution of REST API requests and handling the responses back to the App. Receiving and Handling API responses and Model parsing to the ViewModel layer are implemented using Combine's Publisher-Subscriber pattern.
 
-# The StateManagment package is responsible for generalization of Model Struct so they are being visible/mutable from SwiftUI views
+## The Models package is responsible for abstraction of model objects and implementation of serialization/de-serialisation from the API responses. The main structure of Models module is the Recipe Model (an abstration of food recipe). The Recipe Model hold all information about a particular recipe. The intent of the Recipe Model is obviously to convey the recipes' data to the SwiftUI views. A Recipe Model is created/wrapped with View Model Wrapper to convert a Recipe struct into an Observable Object with the help of the State Managment package.
 
-## The Tools package contains all helper methods, structs/classes
+## The State Managment package is generalizing Models structures into ObservableObjects so they could be visible/mutable from SwiftUI views. The State Managment package allows to wrap any value based structure into an Observable Object. By default value based structures are not accepted by SwiftUI Views as observable objects i.e only classes are allowed to adopt @Observable Object protocol (SwiftUI 5, with the Observation frameworks does not solve that issue)
 
-### The main part of the App lives in RecipesListView and Recipes List.ViewModel
-On the app side the struct of Recipes List. ViewModel is designed to assemble a collection of recipes. ViewModels into an array and parse that array to the corresponding SwiftUI RecipesListView for rendering.
+## The Tools package contains all helper methods structures that are mostly SwiftUI View accessoires/enhancements  
 
-## The RecipesListView is rendering a list of recipes via LazyVStack embedded into scroll (which is recommended by Apple for large collections of dynamic cells). Every cell of the VStack is redered with the RecipeCellView by passing a Recipe.ViewModel along.
+# The App Layer
+## The main part of the App lives in RecipesListView.swift and RecipesListViewModel.swift. The RecipesListViewModel is designed to gather a set of recipes into Swift collection which could be visited in the View's body method for rendering.
 
-### The intention of the app is to demonstrate the loading/reloading of three lists of recipes, i.e. AllRecipes(default behavior), EmptyRecipes and Malformed Data. 
-The list of recipes is sorted upon serialisation by cusine in alphabetic order. 
-The field of cusine is rendered at the top of the scroll and changes dynamically upon cusine of the recipes on the screen 
-When reloading All Recipes the content is scrolled to the back to the top automatically to show the refreshing of the data.
-
-The automatic tests are implemented only in Networking module, with Networking Tests target, to demonstrate my understanding of unit testing.
-The automatic tests could use more coverage as to be expanded into other modules too.
-
-The cashing of Remote Image is implemented in Tools module but it's usage is commented out in RecipeCellView L:24, since it gives partially rendered images and I dont have much time to dive into debugging.
-The behaviour of RemoteImage is a subject to improvement from point of view of cashing.
-
-In Tools StickyHeaderScrollView Preview there is just an idea of usage of swiftUI techniques to render a sticky header over scroll view.
-
+## The RecipesListView is rendering a list of recipes via LazyVStack embedded into scroll (which is recommended by Apple for large collections of dynamic cells). Every cell of the VStack is redered with the RecipeCellView by passing a RecipeViewModel along.
